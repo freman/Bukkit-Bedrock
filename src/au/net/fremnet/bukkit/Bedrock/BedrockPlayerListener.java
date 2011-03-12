@@ -13,42 +13,48 @@ public class BedrockPlayerListener extends PlayerListener {
 		Location from = event.getFrom();
 		Location to = event.getTo();
 
-		System.out.println(String.format("Got movement %d: %d,%d > %d,%d",
-			to.getBlockY(),
-			to.getBlockX(),
-			to.getBlockZ(),
-			from.getBlockX(),
-			from.getBlockZ()
-		));
+		int
+			toY   = (int)Math.floor(to.getY()),
+			toX   = (int)Math.floor(to.getX()),
+			toZ   = (int)Math.floor(to.getZ()),
+			fromY = (int)Math.floor(from.getY());
 
-		
 		// Don't bother checking below this height
-		if (to.getBlockY() - 1 > Bedrock.CheckBelow) return;
+		if (toY > Bedrock.CheckBelow) return;
 
 		// Work out the range to check
-		if (from.getBlockY() - 1 > Bedrock.CheckBelow) {
+		if (fromY > Bedrock.CheckBelow) {
 			// if player is just stepping below the CheckBelow threshold, check
 			// everything
-			int startX = to.getBlockX() - Bedrock.FlattenSquare;
-			int endX = to.getBlockX() + Bedrock.FlattenSquare;
-			int startZ = to.getBlockZ() - Bedrock.FlattenSquare;
-			int endZ = to.getBlockZ() + Bedrock.FlattenSquare;
+			int startX = toX - Bedrock.FlattenSquare;
+			int endX = toX + Bedrock.FlattenSquare;
+			int startZ = toZ - Bedrock.FlattenSquare;
+			int endZ = toZ + Bedrock.FlattenSquare;
 			replace(world, startX, startZ, endX, endZ);
 
 		}
 		else {
-			if (to.getBlockX() != from.getBlockX()) {
-				int startX = source(from.getBlockX(), to.getBlockX(), false);
-				int endX = source(from.getBlockX(), to.getBlockX(), true);
-				int startZ = source(from.getBlockZ(), to.getBlockZ(), false);
-				int endZ = startZ + Bedrock.FlattenSquare * 2;
+			/**
+			 * Turns out it's really hard to work out when a player has left one block
+			 * and moved to another, here I check to see if the difference between
+			 * from and too is greater than 0.1 before trying to work out what
+			 * the change actually has been. then I go one step further by adding and
+			 * subtracting one block to make sure at least 2 blocks with are covered
+			 * (just in case a call was missed)
+			 */
+			if (Math.abs(to.getX() - from.getX()) > 0.1) {
+				int startX = source(from.getX(), to.getX(), true) - 1;
+				int endX = source(from.getX(), to.getX(), false) + 1;
+				int startZ = toZ - Bedrock.FlattenSquare;
+				int endZ = toZ + Bedrock.FlattenSquare;
 				replace(world, startX, startZ, endX, endZ);
 			}
-			if (to.getBlockZ() != from.getBlockZ()) {
-				int startX = source(from.getBlockX(), to.getBlockX(), false);
-				int endX = startX + Bedrock.FlattenSquare * 2;
-				int startZ = source(from.getBlockZ(), to.getBlockZ(), false);
-				int endZ = source(from.getBlockZ(), to.getBlockZ(), true);
+			if (Math.abs(to.getZ() - from.getZ()) > 0.01) {
+				System.out.println(Math.abs(to.getZ() - from.getZ()));
+				int startX = toX - Bedrock.FlattenSquare;
+				int endX = toX + Bedrock.FlattenSquare;
+				int startZ = source(from.getZ(), to.getZ(), true) - 1;
+				int endZ = source(from.getZ(), to.getZ(), false) + 1;
 				replace(world, startX, startZ, endX, endZ);
 			}
 		}
@@ -65,18 +71,23 @@ public class BedrockPlayerListener extends PlayerListener {
 			}
 	}
 	
-	private int source(int from, int to, boolean inv) {
+	private int source(Double from, Double to, boolean inv) {
+		double result;
 		if (from > to) {
 			if (inv) {
-				return from - Bedrock.FlattenSquare;
+				result =  from - Bedrock.FlattenSquare;
 			}
 			else {
-				return to - Bedrock.FlattenSquare;
+				result = to - Bedrock.FlattenSquare;
 			}
 		}
-		if (inv) {
-			return from + Bedrock.FlattenSquare;
+		else if (inv) {
+			result = from + Bedrock.FlattenSquare;
 		}
-		return to + Bedrock.FlattenSquare;
+		else {
+			result = to + Bedrock.FlattenSquare;
+		}
+		
+		return (int) Math.floor(result);
 	}
 }
