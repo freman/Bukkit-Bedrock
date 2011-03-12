@@ -11,6 +11,7 @@
 
 # ant
 /bin
+/.externalToolBuilders
 
 # vim
 .*.sw[a-p]
