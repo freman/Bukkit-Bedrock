@@ -18,9 +18,6 @@
 
 package au.net.fremnet.bukkit.Bedrock;
 
-import java.io.File;
-import java.net.URISyntaxException;
-
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
