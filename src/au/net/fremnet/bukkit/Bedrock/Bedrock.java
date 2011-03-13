@@ -18,6 +18,9 @@
 
 package au.net.fremnet.bukkit.Bedrock;
 
+import java.io.File;
+import java.net.URISyntaxException;
+
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -59,7 +62,7 @@ public class Bedrock extends JavaPlugin {
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = this.getDescription();
 		PluginManager pm = getServer().getPluginManager();
-
+		
 		pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Normal, this);
 
 		System.out.println(pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled :)");
