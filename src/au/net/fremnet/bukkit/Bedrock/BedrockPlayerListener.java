@@ -50,7 +50,6 @@ public class BedrockPlayerListener extends PlayerListener {
 				replace(world, startX, startZ, endX, endZ);
 			}
 			if (Math.abs(to.getZ() - from.getZ()) > 0.01) {
-				System.out.println(Math.abs(to.getZ() - from.getZ()));
 				int startX = toX - Bedrock.FlattenSquare;
 				int endX = toX + Bedrock.FlattenSquare;
 				int startZ = source(from.getZ(), to.getZ(), true) - 1;
