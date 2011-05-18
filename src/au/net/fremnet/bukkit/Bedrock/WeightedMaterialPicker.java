@@ -27,8 +27,8 @@ public class WeightedMaterialPicker {
 	private Random		random		= new Random(System.nanoTime());
 	private Integer		count		= 0;
 	private double		total		= 0.0;
-	private double[]	totals		= new double[10];
-	private Material[]	materials	= new Material[10];
+	private double[]	totals		= new double[1];
+	private Material[]	materials	= new Material[1];
 
 	public WeightedMaterialPicker(Integer max) {
 		totals = new double[max];

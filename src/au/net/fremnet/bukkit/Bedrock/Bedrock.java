@@ -24,11 +24,9 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import au.net.fremnet.libs.bukkit.Copyright;
-
 public class Bedrock extends JavaPlugin {
 	static BedrockPlayerListener	playerListener			= new BedrockPlayerListener();
-	static WeightedMaterialPicker	weightedMaterialPicker	= new WeightedMaterialPicker(7);
+	static WeightedMaterialPicker	weightedMaterialPicker	= new WeightedMaterialPicker(12);
 
 	// Check this number of blocks fore and back, left and right (5*2^2)
 	static Integer					FlattenSquare			= 5;
@@ -40,12 +38,17 @@ public class Bedrock extends JavaPlugin {
 
 	static {
 		// Define a static list of weights for materials
-		weightedMaterialPicker.add(Material.STONE, 50);
-		weightedMaterialPicker.add(Material.LAPIS_ORE, 1);
+		weightedMaterialPicker.add(Material.STONE, 15);
+		weightedMaterialPicker.add(Material.LAPIS_ORE, 0.8);
+		weightedMaterialPicker.add(Material.STONE, 15);
 		weightedMaterialPicker.add(Material.COAL_ORE, 1);
+		weightedMaterialPicker.add(Material.STONE, 15);
 		weightedMaterialPicker.add(Material.IRON_ORE, 0.8);
+		weightedMaterialPicker.add(Material.STONE, 15);
 		weightedMaterialPicker.add(Material.GOLD_ORE, 0.5);
+		weightedMaterialPicker.add(Material.STONE, 15);
 		weightedMaterialPicker.add(Material.REDSTONE_ORE, 0.5);
+		weightedMaterialPicker.add(Material.STONE, 15);
 		weightedMaterialPicker.add(Material.DIAMOND_ORE, 0.1);
 	}
 
@@ -62,8 +65,7 @@ public class Bedrock extends JavaPlugin {
 		
 		pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Normal, this);
 
-		System.out.println(pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled :)");
-		Copyright.show(this, "2011 - Shannon Wynter (http://fremnet.net)", true);
+		System.out.println(pdfFile.getName() + " version " + pdfFile.getVersion() + " - Copyright 2011 - Shannon Wynter (http://fremnet.net) is enabled :)");
 
 	}
 
