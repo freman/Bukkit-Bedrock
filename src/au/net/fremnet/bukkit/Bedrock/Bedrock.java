@@ -18,15 +18,23 @@
 
 package au.net.fremnet.bukkit.Bedrock;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.config.Configuration;
 
 public class Bedrock extends JavaPlugin {
+	protected final static Logger logger = Logger.getLogger("Minecraft");
+    public static final String name = "Bedrock";
+	
 	static BedrockPlayerListener	playerListener			= new BedrockPlayerListener();
-	static WeightedMaterialPicker	weightedMaterialPicker	= new WeightedMaterialPicker(12);
+	static WeightedMaterialPicker	weightedMaterialPicker	= null;
 
 	// Check this number of blocks fore and back, left and right (5*2^2)
 	static Integer					FlattenSquare			= 5;
@@ -34,39 +42,80 @@ public class Bedrock extends JavaPlugin {
 	static Integer					FlattenHeight			= 4;
 	// Only perform flattening checks when player is below this height
 	static Integer					CheckBelow				= 7;
-	static Boolean                  CopyrightShown          = false;
+	// Check to see if there is a wall of adminuim before removing the blocks
+	static boolean                  CheckWall               = false;
+	static Integer                  CheckWallLevel          = 7;
+	// Force Layer 0 to bedrock
+	static boolean                  ForceLayerZero          = true;
+	
+	private void loadConfiguration() {
+		Configuration cfg = getConfiguration();
+		FlattenSquare  = cfg.getInt("flatten.square", 5);
+		FlattenHeight  = cfg.getInt("flatten.height", 4);
+		CheckBelow     = cfg.getInt("check.below", 7);
+		CheckWall      = cfg.getBoolean("check.wall", false);
+		ForceLayerZero = cfg.getBoolean("force.layer.zero", true);
+		
+		List<String> materialList = cfg.getStringList("materials", null);
+		if (materialList.size() == 0) {
+			log("Materials not configured, using defaults");
+			materialList.add(Material.STONE.name() + ":1000");
+			materialList.add(Material.DIAMOND_ORE.name() + ":0.1");
+			materialList.add(Material.COAL_ORE.name() + ":1.0");
+			materialList.add(Material.IRON_ORE.name() + ":0.8");
+			materialList.add(Material.GOLD_ORE.name() + ":0.5");
+			materialList.add(Material.REDSTONE_ORE.name() + ":0.5");
+			materialList.add(Material.LAPIS_ORE.name() + ":0.5");
+			cfg.setProperty("material", materialList);
+		}
 
-	static {
-		// Define a static list of weights for materials
-		weightedMaterialPicker.add(Material.STONE, 15);
-		weightedMaterialPicker.add(Material.LAPIS_ORE, 0.8);
-		weightedMaterialPicker.add(Material.STONE, 15);
-		weightedMaterialPicker.add(Material.COAL_ORE, 1);
-		weightedMaterialPicker.add(Material.STONE, 15);
-		weightedMaterialPicker.add(Material.IRON_ORE, 0.8);
-		weightedMaterialPicker.add(Material.STONE, 15);
-		weightedMaterialPicker.add(Material.GOLD_ORE, 0.5);
-		weightedMaterialPicker.add(Material.STONE, 15);
-		weightedMaterialPicker.add(Material.REDSTONE_ORE, 0.5);
-		weightedMaterialPicker.add(Material.STONE, 15);
-		weightedMaterialPicker.add(Material.DIAMOND_ORE, 0.1);
+		weightedMaterialPicker = new WeightedMaterialPicker(materialList.size());
+		
+		for (Integer i = 0; i < materialList.size(); i++) {
+			String[] split = materialList.get(i).split(":", 2);
+			Material material = Material.getMaterial(split[0]);
+			if (material == null) {
+				log(split[0] + " is an unknown material, converting to stone");
+				material = Material.STONE;
+			}
+			if (!material.isBlock()) {
+				log(split[0] + " is not a block material, converting to stone");
+				material = Material.STONE;
+			}
+			double weight = 0.0;
+			try {
+				weight = Double.parseDouble(split[1]);
+			}
+			catch (Exception e) {
+				log(split[1] + " is not a valid weight, setting to 1");
+				weight = 1.0;
+			}
+			
+			weightedMaterialPicker.add(material, weight);
+		}
+
+		cfg.save();
 	}
-
+	
 	@Override
 	public void onDisable() {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = this.getDescription();
 		PluginManager pm = getServer().getPluginManager();
+	
+		loadConfiguration();
 		
 		pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Normal, this);
 
-		System.out.println(pdfFile.getName() + " version " + pdfFile.getVersion() + " - Copyright 2011 - Shannon Wynter (http://fremnet.net) is enabled :)");
+		log("Version " + pdfFile.getVersion()+ " - Copyright 2011 - Shannon Wynter (http://fremnet.net) is enabled");
 
 	}
 
+	public static void log(String txt) {
+		logger.log(Level.INFO, String.format("[%s] %s", name, txt));
+    }
 }

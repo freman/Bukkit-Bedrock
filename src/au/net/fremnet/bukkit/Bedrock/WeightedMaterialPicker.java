@@ -33,15 +33,14 @@ public class WeightedMaterialPicker {
 	public WeightedMaterialPicker(Integer max) {
 		totals = new double[max];
 		materials = new Material[max];
-
 	}
-
+	
 	public void add(Material material, double weight) {
 		total += weight;
 		totals[count] = total;
 		materials[count++] = material;
 	}
-
+	
 	public Material get() {
 		double rnd = random.nextDouble() * total;
 		int index = Arrays.binarySearch(totals, rnd);

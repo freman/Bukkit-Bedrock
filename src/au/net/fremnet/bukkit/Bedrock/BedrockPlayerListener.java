@@ -35,7 +35,7 @@ public class BedrockPlayerListener extends PlayerListener {
 			toY   = (int)Math.floor(to.getY()),
 			toX   = (int)Math.floor(to.getX()),
 			toZ   = (int)Math.floor(to.getZ()),
-			fromY = (int)Math.floor(from.getY());
+			fromY = (int)Math.ceil(from.getY());
 
 		// Don't bother checking below this height
 		if (toY > Bedrock.CheckBelow) return;
@@ -82,9 +82,13 @@ public class BedrockPlayerListener extends PlayerListener {
 			for (int z = startZ; z <= endZ; z++) {
 				// Blocks above level 0
 				for (int y = 1; y <= Bedrock.FlattenHeight; y++)
-					if (world.getBlockAt(x, y, z).getType() == Material.BEDROCK)
+					if (world.getBlockAt(x, y, z).getType().equals(Material.BEDROCK)) {
+						if (Bedrock.CheckWall && world.getBlockAt(x, Bedrock.CheckWallLevel, z).getType().equals(Material.BEDROCK)) continue;
 						world.getBlockAt(x, y, z).setType(Bedrock.weightedMaterialPicker.get());
-				if (world.getBlockAt(x, 0, z).getType() != Material.BEDROCK) world.getBlockAt(x, 0, z).setType(Material.BEDROCK);
+					}
+						
+				if (world.getBlockAt(x, 0, z).getType() != Material.BEDROCK && Bedrock.ForceLayerZero)
+					world.getBlockAt(x, 0, z).setType(Material.BEDROCK);
 			}
 	}
 	
