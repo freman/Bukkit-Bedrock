@@ -58,15 +58,22 @@ public class Bedrock extends JavaPlugin {
 		
 		List<String> materialList = cfg.getStringList("materials", null);
 		if (materialList.size() == 0) {
-			log("Materials not configured, using defaults");
-			materialList.add(Material.STONE.name() + ":1000");
-			materialList.add(Material.DIAMOND_ORE.name() + ":0.1");
-			materialList.add(Material.COAL_ORE.name() + ":1.0");
-			materialList.add(Material.IRON_ORE.name() + ":0.8");
-			materialList.add(Material.GOLD_ORE.name() + ":0.5");
-			materialList.add(Material.REDSTONE_ORE.name() + ":0.5");
-			materialList.add(Material.LAPIS_ORE.name() + ":0.5");
-			cfg.setProperty("material", materialList);
+			materialList = cfg.getStringList("material", null);
+			if (materialList.size() == 0) {
+				log("Materials not configured, using defaults");
+				materialList.add(Material.STONE.name() + ":1000");
+				materialList.add(Material.DIAMOND_ORE.name() + ":0.1");
+				materialList.add(Material.COAL_ORE.name() + ":1.0");
+				materialList.add(Material.IRON_ORE.name() + ":0.8");
+				materialList.add(Material.GOLD_ORE.name() + ":0.5");
+				materialList.add(Material.REDSTONE_ORE.name() + ":0.5");
+				materialList.add(Material.LAPIS_ORE.name() + ":0.5");
+			}
+			else {
+				log("Renaming material to materials");
+				cfg.removeProperty("material");
+			}
+			cfg.setProperty("materials", materialList);
 		}
 
 		weightedMaterialPicker = new WeightedMaterialPicker(materialList.size());
