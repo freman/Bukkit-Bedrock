@@ -18,11 +18,13 @@
 
 package au.net.fremnet.bukkit.Bedrock;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -47,6 +49,7 @@ public class Bedrock extends JavaPlugin {
 	static Integer                  CheckWallLevel          = 7;
 	// Force Layer 0 to bedrock
 	static boolean                  ForceLayerZero          = true;
+	static List<World>		Blacklist				= null;
 	
 	private void loadConfiguration() {
 		Configuration cfg = getConfiguration();
@@ -55,6 +58,17 @@ public class Bedrock extends JavaPlugin {
 		CheckBelow     = cfg.getInt("check.below", 7);
 		CheckWall      = cfg.getBoolean("check.wall", false);
 		ForceLayerZero = cfg.getBoolean("force.layer.zero", true);
+		
+		List<String> blacklistNames = cfg.getStringList("blacklist", null);
+		Blacklist = new ArrayList<World>(blacklistNames.size());
+		for(String worldname : blacklistNames)
+		{
+			World world = getServer().getWorld(worldname);
+			if(world != null)
+				Blacklist.add(world);
+			else
+				logWarning("World:"+worldname+" not found, unable to blacklist.");
+		}
 		
 		List<String> materialList = cfg.getStringList("materials", null);
 		if (materialList.size() == 0) {
@@ -124,5 +138,11 @@ public class Bedrock extends JavaPlugin {
 
 	public static void log(String txt) {
 		logger.log(Level.INFO, String.format("[%s] %s", name, txt));
+    }
+	public static void logSevere(String txt) {
+		logger.log(Level.SEVERE, String.format("[%s] %s", name, txt));
+    }
+	public static void logWarning(String txt) {
+		logger.log(Level.WARNING, String.format("[%s] %s", name, txt));
     }
 }
