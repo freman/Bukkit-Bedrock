@@ -28,6 +28,7 @@ public class BedrockPlayerListener extends PlayerListener {
 	@Override
 	public void onPlayerMove(PlayerMoveEvent event) {
 		World world = event.getTo().getWorld();
+		if(Bedrock.Blacklist.contains(world)) return;
 		Location from = event.getFrom();
 		Location to = event.getTo();
 
