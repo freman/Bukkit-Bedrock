@@ -29,6 +29,8 @@ public class BedrockPlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		World world = event.getTo().getWorld();
+		if(Bedrock.Blacklist.contains(world)) return;
+
 		Location from = event.getFrom();
 		Location to = event.getTo();
 

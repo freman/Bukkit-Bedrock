@@ -14,26 +14,26 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package au.net.fremnet.bukkit.Bedrock;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.Event;
+import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Bedrock extends JavaPlugin {
-	protected final static Logger logger = Logger.getLogger("Minecraft");
-    public static final String name = "Bedrock";
-	
+	protected final static Logger	logger					= Logger.getLogger("Minecraft");
+	public static final String		name					= "Bedrock";
+
 	static BedrockPlayerListener	playerListener			= new BedrockPlayerListener();
 	static WeightedMaterialPicker	weightedMaterialPicker	= null;
 
@@ -44,19 +44,30 @@ public class Bedrock extends JavaPlugin {
 	// Only perform flattening checks when player is below this height
 	static Integer					CheckBelow				= 7;
 	// Check to see if there is a wall of adminuim before removing the blocks
-	static boolean                  CheckWall               = false;
-	static Integer                  CheckWallLevel          = 7;
+	static boolean					CheckWall				= false;
+	static Integer					CheckWallLevel			= 7;
 	// Force Layer 0 to bedrock
-	static boolean                  ForceLayerZero          = true;
-	
+	static boolean					ForceLayerZero			= true;
+	static List<World>				Blacklist				= null;
+
 	private void loadConfiguration() {
 		FileConfiguration cfg = this.getConfig();
-		FlattenSquare  = cfg.getInt("flatten.square", 5);
-		FlattenHeight  = cfg.getInt("flatten.height", 4);
-		CheckBelow     = cfg.getInt("check.below", 7);
-		CheckWall      = cfg.getBoolean("check.wall", false);
+		FlattenSquare = cfg.getInt("flatten.square", 5);
+		FlattenHeight = cfg.getInt("flatten.height", 4);
+		CheckBelow = cfg.getInt("check.below", 7);
+		CheckWall = cfg.getBoolean("check.wall", false);
 		ForceLayerZero = cfg.getBoolean("force.layer.zero", true);
-		
+
+		List<String> blacklistNames = cfg.getStringList("blacklist");
+		Blacklist = new ArrayList<World>(blacklistNames.size());
+		for (String worldname : blacklistNames) {
+			World world = getServer().getWorld(worldname);
+			if (world != null)
+				Blacklist.add(world);
+			else
+				logWarning("World:" + worldname + " not found, unable to blacklist.");
+		}
+
 		List<String> materialList = cfg.getStringList("materials");
 		if (materialList.size() == 0) {
 			log("Materials not configured, using defaults");
@@ -70,7 +81,7 @@ public class Bedrock extends JavaPlugin {
 		}
 
 		weightedMaterialPicker = new WeightedMaterialPicker(materialList.size());
-		
+
 		for (Integer i = 0; i < materialList.size(); i++) {
 			String[] split = materialList.get(i).split(":", 2);
 			Material material = Material.getMaterial(split[0]);
@@ -90,11 +101,11 @@ public class Bedrock extends JavaPlugin {
 				log(split[1] + " is not a valid weight, setting to 1");
 				weight = 1.0;
 			}
-			
+
 			weightedMaterialPicker.add(material, weight);
 		}
 	}
-	
+
 	@Override
 	public void onDisable() {
 		// TODO Auto-generated method stub
@@ -104,16 +115,24 @@ public class Bedrock extends JavaPlugin {
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = this.getDescription();
 		PluginManager pm = getServer().getPluginManager();
-	
+
 		loadConfiguration();
-		
+
 		pm.registerEvents(playerListener, this);
 
-		log("Version " + pdfFile.getVersion()+ " - Copyright 2011 - Shannon Wynter (http://fremnet.net) is enabled");
+		log("Version " + pdfFile.getVersion() + " - Copyright 2011 - Shannon Wynter (http://fremnet.net) is enabled");
 
 	}
 
 	public static void log(String txt) {
 		logger.log(Level.INFO, String.format("[%s] %s", name, txt));
-    }
+	}
+
+	public static void logSevere(String txt) {
+		logger.log(Level.SEVERE, String.format("[%s] %s", name, txt));
+	}
+
+	public static void logWarning(String txt) {
+		logger.log(Level.WARNING, String.format("[%s] %s", name, txt));
+	}
 }
