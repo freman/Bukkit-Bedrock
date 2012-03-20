@@ -21,11 +21,12 @@ package au.net.fremnet.bukkit.Bedrock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-public class BedrockPlayerListener extends PlayerListener {
-	@Override
+public class BedrockPlayerListener implements Listener {
+	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		World world = event.getTo().getWorld();
 		Location from = event.getFrom();

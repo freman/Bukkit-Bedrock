@@ -18,16 +18,17 @@
 
 package au.net.fremnet.bukkit.Bedrock;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 
 public class Bedrock extends JavaPlugin {
 	protected final static Logger logger = Logger.getLogger("Minecraft");
@@ -49,31 +50,23 @@ public class Bedrock extends JavaPlugin {
 	static boolean                  ForceLayerZero          = true;
 	
 	private void loadConfiguration() {
-		Configuration cfg = getConfiguration();
+		FileConfiguration cfg = this.getConfig();
 		FlattenSquare  = cfg.getInt("flatten.square", 5);
 		FlattenHeight  = cfg.getInt("flatten.height", 4);
 		CheckBelow     = cfg.getInt("check.below", 7);
 		CheckWall      = cfg.getBoolean("check.wall", false);
 		ForceLayerZero = cfg.getBoolean("force.layer.zero", true);
 		
-		List<String> materialList = cfg.getStringList("materials", null);
+		List<String> materialList = cfg.getStringList("materials");
 		if (materialList.size() == 0) {
-			materialList = cfg.getStringList("material", null);
-			if (materialList.size() == 0) {
-				log("Materials not configured, using defaults");
-				materialList.add(Material.STONE.name() + ":1000");
-				materialList.add(Material.DIAMOND_ORE.name() + ":0.1");
-				materialList.add(Material.COAL_ORE.name() + ":1.0");
-				materialList.add(Material.IRON_ORE.name() + ":0.8");
-				materialList.add(Material.GOLD_ORE.name() + ":0.5");
-				materialList.add(Material.REDSTONE_ORE.name() + ":0.5");
-				materialList.add(Material.LAPIS_ORE.name() + ":0.5");
-			}
-			else {
-				log("Renaming material to materials");
-				cfg.removeProperty("material");
-			}
-			cfg.setProperty("materials", materialList);
+			log("Materials not configured, using defaults");
+			materialList.add(Material.STONE.name() + ":1000");
+			materialList.add(Material.DIAMOND_ORE.name() + ":0.1");
+			materialList.add(Material.COAL_ORE.name() + ":1.0");
+			materialList.add(Material.IRON_ORE.name() + ":0.8");
+			materialList.add(Material.GOLD_ORE.name() + ":0.5");
+			materialList.add(Material.REDSTONE_ORE.name() + ":0.5");
+			materialList.add(Material.LAPIS_ORE.name() + ":0.5");
 		}
 
 		weightedMaterialPicker = new WeightedMaterialPicker(materialList.size());
@@ -100,8 +93,6 @@ public class Bedrock extends JavaPlugin {
 			
 			weightedMaterialPicker.add(material, weight);
 		}
-
-		cfg.save();
 	}
 	
 	@Override
@@ -116,7 +107,7 @@ public class Bedrock extends JavaPlugin {
 	
 		loadConfiguration();
 		
-		pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Normal, this);
+		pm.registerEvents(playerListener, this);
 
 		log("Version " + pdfFile.getVersion()+ " - Copyright 2011 - Shannon Wynter (http://fremnet.net) is enabled");
 

@@ -1,0 +1,17 @@
+flatten:
+  square: 5
+  height: 4
+check:
+  below: 7
+  wall: false
+force:
+  layer:
+    zero: true
+materials:
+- STONE:1000
+- DIAMOND_ORE:0.1
+- COAL_ORE:1.0
+- IRON_ORE:0.8
+- GOLD_ORE:0.5
+- REDSTONE_ORE:0.5
+- LAPIS_ORE:0.5
